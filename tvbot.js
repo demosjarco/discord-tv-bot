@@ -143,7 +143,47 @@ bot.registerCommand("roleSignup", (msg, args) => {
 	}
 });
 bot.registerCommandAlias("rs", "roleSignup");
-// Stop watching for message if message is deleted
+
+// Remove guild from preferences if deleted
+bot.on("guildDelete", (guild) => {
+	pool.getConnection(function(err1, connection1) {
+		if (err1) throw err1;
+
+		connection1.query("DELETE FROM guild_preferences WHERE guild_id = ?", [guild.id], function(error1, results1, fields1) {
+			connection1.release();
+
+			if (error1) throw error1;
+		});
+	});
+});
+
+// Remove channel from preferences if deleted
+bot.on("channelDelete", (channel) => {
+	pool.getConnection(function(err1, connection1) {
+		if (err1) throw err1;
+
+		connection1.query("DELETE FROM guild_preferences WHERE guild_id = ? AND textChannel_id = ?", [channel.guild.id, channel.id], function(error1, results1, fields1) {
+			connection1.release();
+
+			if (error1) throw error1;
+		});
+	});
+});
+
+// Remove role from preferences if deleted
+bot.on("guildRoleDelete", (guild, role) => {
+	pool.getConnection(function(err1, connection1) {
+		if (err1) throw err1;
+
+		connection1.query("UPDATE guild_preferences WHERE guild_id = ? AND notificationRole_id = ?", [guild.id, role.id], function(error1, results1, fields1) {
+			connection1.release();
+
+			if (error1) throw error1;
+		});
+	});
+});
+
+// Stop watching for messages if message is deleted
 bot.on("messageDelete", (message) => {
 	pool.getConnection(function(err1, connection1) {
 		if (err1) throw err1;
@@ -155,7 +195,7 @@ bot.on("messageDelete", (message) => {
 		});
 	});
 });
-// Stop watching for message if message is deleted
+// Stop watching for messages if message is deleted
 bot.on("messageDeleteBulk", (messages) => {
 	// Manual for loop to wait for async commands
 	var messageCounter = 0;
