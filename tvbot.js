@@ -119,16 +119,34 @@ bot.registerCommand("setRole", (msg, args) => {
 bot.registerCommandAlias("sr", "setRole");
 
 bot.registerCommand("roleSignup", (msg, args) => {
-	msg.channel.createMessage("If you want to subscribe to notifications, click on the bell reaction. To unsubscribe, just simply remove your reaction (click on the reaction again).").then((message) => {
-		message.addReaction("🔔");
-		pool.getConnection(function(err1, connection1) {
-			if (err1) throw err1;
+	pool.getConnection(function(err1, connection1) {
+		if (err1) throw err1;
 
-			connection1.query("INSERT INTO notifMsgWatchlist (message_id, channel_id) VALUES (?, ?) ON DUPLICATE KEY UPDATE message_id=VALUES(message_id), channel_id=VALUES(channel_id)", [message.id, message.channel.id], function(error1, results1, fields1) {
-				connection1.release();
+		connection1.query("SELECT notificationRole_id FROM guild_preferences WHERE guild_id = ? AND notificationRole_id IS NOT NULL", [msg.channel.guild.id], function(error1, results1, fields1) {
+			connection1.release();
 
-				if (error1) throw error1;
-			});
+			if (error1) throw error1;
+			
+			if (results1.length > 0) {
+				msg.channel.createMessage("If you want to subscribe to notifications, click on the bell reaction. To unsubscribe, just simply remove your reaction (click on the reaction again).").then((message) => {
+					message.addReaction("🔔");
+					pool.getConnection(function(err1, connection1) {
+						if (err1) throw err1;
+
+						connection1.query("INSERT INTO notifMsgWatchlist (message_id, channel_id) VALUES (?, ?) ON DUPLICATE KEY UPDATE message_id=VALUES(message_id), channel_id=VALUES(channel_id)", [message.id, message.channel.id], function(error1, results1, fields1) {
+							connection1.release();
+
+							if (error1) throw error1;
+						});
+					});
+				});
+			} else {
+				msg.channel.createMessage({embed: {
+					title: "Error",
+					description: "The bot must have a role set to mention to use this command. Please use `setRole` command first.",
+					color: 0xFF0000
+				}});
+			}
 		});
 	});
 }, {
