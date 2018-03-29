@@ -25,3 +25,10 @@
 > `dbDb` is the MySQL server host url
 
 > `tvdbKey` is the API Key for your TheTVDB [Register project for API](https://www.thetvdb.com/?tab=apiregister)
+
+#### Node.JS Dependencies
+* Eris: [NPM](https://www.npmjs.com/package/eris) | [GitHub](https://github.com/abalabahaha/eris) | [Docs](https://abal.moe/Eris/docs/getting-started)
+> Also includes `bufferutil`, `erlpack`, `eventemitter3`, `uws`, `zlib-sync` optional packages for Eris
+* MySQL: [NPM](https://www.npmjs.com/package/mysql) | [GitHub](https://github.com/mysqljs/mysql)
+* Node Schedule: [NPM](https://www.npmjs.com/package/node-schedule) | [GitHub](https://github.com/node-schedule/node-schedule)
+* node-tvdb: [NPM](https://www.npmjs.com/package/node-tvdb) | [GitHub](https://github.com/edwellbrook/node-tvdb) | [Docs](https://edwellbrook.github.io/node-tvdb/) | [TVDB API Docs](https://api.thetvdb.com/swagger)
