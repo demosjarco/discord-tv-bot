@@ -59,3 +59,6 @@ typings/
 
 # api key file
 secret-keys.js
+
+# dreamweaver trash
+_notes/
