@@ -1,5 +1,7 @@
 const Eris = require("eris");
 const mysql = require("mysql");
+const TVDBPlugin = require('node-tvdb');
+const tvdb = new TVDBPlugin(secretKeys.tvdbKey);
 const secretKeys = require("./secret-keys.js");
 
 const pool  = mysql.createPool({
