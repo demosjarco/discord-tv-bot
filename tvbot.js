@@ -1,5 +1,15 @@
 const Eris = require("eris");
+const mysql = require("mysql");
 const secretKeys = require("./secret-keys.js");
+
+const pool  = mysql.createPool({
+	connectionLimit: 50,
+	host: secretKeys.dbHost,
+	user: secretKeys.dbUser,
+	password: secretKeys.dbPass,
+	database: secretKeys.dbDb,
+	supportBigNumbers: false,
+});
 
 const bot = new Eris.CommandClient(secretKeys.botToken, {
 	autoreconnect: true,
