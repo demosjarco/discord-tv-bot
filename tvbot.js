@@ -29,3 +29,33 @@ bot.on("error", (err, id) => {
 });
 
 bot.connect();
+
+bot.registerCommand("setChannel", (msg, args) => {
+	
+}, {
+	description: "",
+	fullDescription: "",
+	usage: "",
+	permissionMessage: "You must have the `Manage Channels` permission or higher to use this command",
+	requirements: {
+		permissions: {
+			"manageChannels": true
+		}
+	}
+});
+bot.registerCommandAlias("sc", "setChannel");
+
+bot.registerCommand("setRole", (msg, args) => {
+	
+}, {
+	description: "",
+	fullDescription: "",
+	usage: "",
+	permissionMessage: "You must have the `Manage Roles` permission or higher to use this command",
+	requirements: {
+		permissions: {
+			"manageRoles": true
+		}
+	}
+});
+bot.registerCommandAlias("sr", "setRole");
