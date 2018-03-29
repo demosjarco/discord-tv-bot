@@ -144,6 +144,60 @@ bot.registerCommand("roleSignup", (msg, args) => {
 });
 bot.registerCommandAlias("rs", "roleSignup");
 
+// Message watchlist
+bot.on("messageReactionAdd", (message, emoji, userID) => {
+	pool.getConnection(function(err1, connection1) {
+		if (err1) throw err1;
+
+		connection1.query("SELECT message_id FROM notifMsgWatchlist WHERE message_id = ? AND channel_id = ?", [message.id, message.channel.id], function(error1, results1, fields1) {
+			connection1.release();
+
+			if (error1) throw error1;
+			
+			if (results1.length > 1) {
+				// Message is in watch list. Find out guild and add role
+				pool.getConnection(function(err2, connection2) {
+					if (err2) throw err2;
+					
+					connection2.query("SELECT notificationRole_id FROM guild_preferences WHERE guild_id = ?", [message.channel.guild.id], function(error2, resutls2, fields2) {
+						connection2.release();
+
+						if (error2) throw error1;
+						
+						bot.addGuildMemberRole(message.channel.guild.id, userID, resutls2[0].notificationRole_id);
+					});
+				});
+			}
+		});
+	});
+});
+bot.on("messageReactionRemove", (message, emoji, userID) => {
+	pool.getConnection(function(err1, connection1) {
+		if (err1) throw err1;
+
+		connection1.query("SELECT message_id FROM notifMsgWatchlist WHERE message_id = ? AND channel_id = ?", [message.id, message.channel.id], function(error1, results1, fields1) {
+			connection1.release();
+
+			if (error1) throw error1;
+			
+			if (results1.length > 1) {
+				// Message is in watch list. Find out guild and remove role
+				pool.getConnection(function(err2, connection2) {
+					if (err2) throw err2;
+					
+					connection2.query("SELECT notificationRole_id FROM guild_preferences WHERE guild_id = ?", [message.channel.guild.id], function(error2, resutls2, fields2) {
+						connection2.release();
+
+						if (error2) throw error1;
+						
+						bot.removeGuildMemberRole(message.channel.guild.id, userID, resutls2[0].notificationRole_id);
+					});
+				});
+			}
+		});
+	});
+});
+
 // Remove guild from preferences if deleted
 bot.on("guildDelete", (guild) => {
 	pool.getConnection(function(err1, connection1) {
