@@ -1,0 +1,29 @@
+{
+  "name": "discord-tv-bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "tvbot.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/victhebeast/discord-tv-bot.git"
+  },
+  "author": "Victor",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/victhebeast/discord-tv-bot/issues"
+  },
+  "homepage": "https://github.com/victhebeast/discord-tv-bot#readme",
+  "dependencies": {
+    "bufferutil": "*",
+    "eris": "*",
+    "erlpack": "github:abalabahaha/erlpack",
+    "eventemitter3": "*",
+    "node-schedule": "*",
+    "node-tvdb": "*",
+    "uws": "*",
+    "zlib-sync": "*"
+  }
+}
