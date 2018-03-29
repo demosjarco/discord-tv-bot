@@ -1,8 +1,8 @@
 const Eris = require("eris");
 const mysql = require("mysql");
 const TVDBPlugin = require('node-tvdb');
-const tvdb = new TVDBPlugin(secretKeys.tvdbKey);
 const secretKeys = require("./secret-keys.js");
+const tvdb = new TVDBPlugin(secretKeys.tvdbKey);
 
 const pool  = mysql.createPool({
 	connectionLimit: 50,
