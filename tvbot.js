@@ -33,7 +33,7 @@ bot.connect();
 bot.registerCommand("setChannel", (msg, args) => {
 	// Check if user mentioned a channel
 	var channel = "";
-	if (msg.channelMentions) {
+	if (msg.channelMentions && msg.channelMentions.length > 0) {
 		// User mentioned a channel. Use that channel
 		channel = msg.channelMentions[0];
 	} else {
@@ -79,12 +79,20 @@ bot.registerCommand("setRole", (msg, args) => {
 				connection1.release();
 
 				if (error1) throw error1;
-
-				msg.channel.createMessage({embed: {
-					title: "Success",
-					description: "The role <@&" + msg.roleMentions[0] + "> has been set to mention. Assign this role to be notified or use the `roleSignup` command to have the bot give an option for people to sign up (bot must have `Manage Roles` and `Add Reactions` permissions).",
-					color: 0x00FF00
-				}});
+				
+				if (results1.affectedRows > 0) {
+					msg.channel.createMessage({embed: {
+						title: "Success",
+						description: "The role <@&" + msg.roleMentions[0] + "> has been set to mention. Assign this role to be notified or use the `roleSignup` command to have the bot give an option for people to sign up (bot must have `Manage Roles` and `Add Reactions` permissions).",
+						color: 0x00FF00
+					}});
+				} else {
+					msg.channel.createMessage({embed: {
+						title: "Warning",
+						description: "The role <@&" + msg.roleMentions[0] + "> has not been set to mention. This is most likely because no channel was set using the `setChannel` command.",
+						color: 0xFFFF00
+					}});
+				}
 			});
 		});
 	} else {
@@ -172,7 +180,7 @@ bot.on("messageReactionAdd", (message, emoji, userID) => {
 
 			if (error1) throw error1;
 			
-			if (results1.length > 1) {
+			if (results1.length > 0) {
 				// Message is in watch list. Find out guild and add role
 				pool.getConnection(function(err2, connection2) {
 					if (err2) throw err2;
@@ -198,7 +206,7 @@ bot.on("messageReactionRemove", (message, emoji, userID) => {
 
 			if (error1) throw error1;
 			
-			if (results1.length > 1) {
+			if (results1.length > 0) {
 				// Message is in watch list. Find out guild and remove role
 				pool.getConnection(function(err2, connection2) {
 					if (err2) throw err2;
