@@ -117,3 +117,64 @@ bot.registerCommand("setRole", (msg, args) => {
 	}
 });
 bot.registerCommandAlias("sr", "setRole");
+
+bot.registerCommand("roleSignup", (msg, args) => {
+	msg.channel.createMessage("If you want to subscribe to notifications, click on the bell reaction. To unsubscribe, just simply remove your reaction (click on the reaction again).").then((message) => {
+		message.addReaction("🔔");
+		pool.getConnection(function(err1, connection1) {
+			if (err1) throw err1;
+
+			connection1.query("INSERT INTO notifMsgWatchlist (message_id, channel_id) VALUES (?, ?) ON DUPLICATE KEY UPDATE message_id=VALUES(message_id), channel_id=VALUES(channel_id)", [message.id, message.channel.id], function(error1, results1, fields1) {
+				connection1.release();
+
+				if (error1) throw error1;
+			});
+		});
+	});
+}, {
+	description: "Let the bot add role to people.",
+	fullDescription: "Let the bot create a message that when people react to, will add the notification role to them.",
+	usage: "Just type this command in whatever channel you want the message to appear in. It is suggested you pin the bot message afterwards.",
+	permissionMessage: "You must have the `Manage Roles` permission or higher to use this command",
+	requirements: {
+		permissions: {
+			"manageRoles": true
+		}
+	}
+});
+bot.registerCommandAlias("rs", "roleSignup");
+// Stop watching for message if message is deleted
+bot.on("messageDelete", (message) => {
+	pool.getConnection(function(err1, connection1) {
+		if (err1) throw err1;
+
+		connection1.query("DELETE FROM notifMsgWatchlist WHERE channel_id = ? AND message_id = ?", [message.channel.id, message.id], function(error1, results1, fields1) {
+			connection1.release();
+
+			if (error1) throw error1;
+		});
+	});
+});
+// Stop watching for message if message is deleted
+bot.on("messageDeleteBulk", (messages) => {
+	// Manual for loop to wait for async commands
+	var messageCounter = 0;
+	function messageStepper(message) {
+		pool.getConnection(function(err1, connection1) {
+			if (err1) throw err1;
+
+			connection1.query("DELETE FROM notifMsgWatchlist WHERE channel_id = ? AND message_id = ?", [message.channel.id, message.id], function(error1, results1, fields1) {
+				connection1.release();
+
+				if (error1) throw error1;
+				
+				messageCounter++;
+				if (messageCounter < messages.length) {
+					messageStepper(messages[messageCounter]);
+				}
+			});
+		});
+	}
+	// First time
+	messageStepper(messages[messageCounter]);
+});

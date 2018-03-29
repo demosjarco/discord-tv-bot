@@ -20,6 +20,19 @@ CREATE TABLE `guild_preferences` (
 );
 
 -- ---
+-- Table 'notifMsgWatchlist'
+-- 
+-- ---
+
+DROP TABLE IF EXISTS `notifMsgWatchlist`;
+		
+CREATE TABLE `notifMsgWatchlist` (
+  `message_id` VARCHAR(50) NOT NULL,
+  `channel_id` VARCHAR(50) NOT NULL,
+  UNIQUE KEY (`message_id`, `channel_id`)
+);
+
+-- ---
 -- Foreign Keys 
 -- ---
 
@@ -29,6 +42,7 @@ CREATE TABLE `guild_preferences` (
 -- ---
 
 -- ALTER TABLE `guild_preferences` ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+-- ALTER TABLE `notifMsgWatchlist` ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 -- ---
 -- Test Data
@@ -36,3 +50,5 @@ CREATE TABLE `guild_preferences` (
 
 -- INSERT INTO `guild_preferences` (`guild_id`,`textChannel_id`,`notificationRole_id`) VALUES
 -- ('','','');
+-- INSERT INTO `notifMsgWatchlist` (`message_id`,`channel_id`) VALUES
+-- ('','');
