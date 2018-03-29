@@ -174,11 +174,28 @@ bot.registerCommand("roleSignup", (msg, args) => {
 bot.registerCommandAlias("rs", "roleSignup");
 
 var showSearch = {};
-bot.registerCommand("showWatch", (msg, args) => {
+const showWatch = bot.registerCommand("showWatch", (msg, args) => {
 	tvdb.getSeriesByName(args.join(" ")).then(showSearchResponse => {
-		console.log(showSearchResponse);
 		if (showSearchResponse.length > 1) {
 			// Multiple shows in search results
+			var fieldsTemp = [];
+			var series = [];
+			showSearchResponse.splice(0, 25).forEach(function(showResult, searchIndex) {
+				fieldsTemp.push({name: (searchIndex+1) + ": " + showResult.seriesName + " on " + showResult.network, value: showResult.overview, inline: true,});
+				series.push(showResult.id);
+			});
+			
+			msg.channel.createMessage({embed: {
+				title: "Search results for " + args.join(" "),
+				description: "Select a show by using the `select` subcommand. Ex: `showWatch select 1`",
+				color: 0xFFFF00,
+				footer: {
+					text: "Show info and images from The TVDB",
+				},
+				fields: fieldsTemp
+			}}).then((message) => {
+				showSearch[message.channel.guild.id] = {msgId: message.id, chanId: message.channel.id, series: series};
+			});
 		} else {
 			// Only 1
 			tvdb.getSeriesImages(showSearchResponse[0].id, "poster").then(posterResponse => {
@@ -206,6 +223,16 @@ bot.registerCommand("showWatch", (msg, args) => {
 					}
 				}});
 			});
+			
+			pool.getConnection(function(err1, connection1) {
+				if (err1) throw err1;
+
+				connection1.query("INSERT INTO guild_tvWatchlist SET ? ON DUPLICATE KEY UPDATE tvdbShow_id=VALUES(tvdbShow_id)", {guild_id: msg.channel.guild.id, tvdbShow_id: showSearchResponse[0].id}, function(error1, results1, fields1) {
+					connection1.release();
+
+					if (error1) throw error1;
+				});
+			});
 		}
 	}).catch(showSearchError => {
 		msg.channel.createMessage({embed: {
@@ -217,8 +244,109 @@ bot.registerCommand("showWatch", (msg, args) => {
 			}
 		}});
 	});
+}, {
+	argsRequired: true,
+	errorMessage: "Please make sure you typed in a tv show name. Ex: `showWatch game of thrones`",
+	description: "Search TV Shows to auto watch.",
+	fullDescription: "Search for a TV Show to have the bot auto watch and post about.",
+	usage: "`<show name>`",
+	permissionMessage: "You must have the `Manage Channels` permission or higher to use this command",
+	requirements: {
+		permissions: {
+			"manageChannels": true
+		}
+	}
 });
 bot.registerCommandAlias("sw", "showWatch");
+
+showWatch.registerSubcommand("select", (msg, args) => {
+	if (showSearch[msg.channel.guild.id]) {
+		if (!isNaN(args.join(""))) {
+			if (parseInt(args.join("")) > 0 && parseInt(args.join("")) <= showSearch[msg.channel.guild.id].series.length) {
+				// Valid result #
+				tvdb.getSeriesById(showSearch[msg.channel.guild.id].series[parseInt(args.join(""))-1]).then(seriesInfo => {
+					tvdb.getSeriesImages(seriesInfo.id, "poster").then(posterResponse => {
+						const posterList = posterResponse.sort(function(a, b) {
+							return (b.ratingsInfo.average - a.ratingsInfo.average);
+						});
+						msg.channel.createMessage({embed: {
+							title: "Now watching " + seriesInfo.seriesName + " on " + seriesInfo.network,
+							description: seriesInfo.overview,
+							color: 0x00FF00,
+							footer: {
+								text: "Show info and images from The TVDB",
+							},
+							thumbnail: {
+								url: tvdbImageBase + posterList[0].fileName,
+							}
+						}});
+					}).catch(posterError => {
+						msg.channel.createMessage({embed: {
+							title: "Now watching " + seriesInfo.seriesName + " on " + seriesInfo.network,
+							description: seriesInfo.overview,
+							color: 0x00FF00,
+							footer: {
+								text: "Show info and images from The TVDB",
+							}
+						}});
+					});
+					
+					pool.getConnection(function(err1, connection1) {
+						if (err1) throw err1;
+						
+						connection1.query("INSERT INTO guild_tvWatchlist SET ? ON DUPLICATE KEY UPDATE tvdbShow_id=VALUES(tvdbShow_id)", {guild_id: msg.channel.guild.id, tvdbShow_id: showSearch[msg.channel.guild.id].series[parseInt(args.join(""))-1]}, function(error1, results1, fields1) {
+							connection1.release();
+							
+							if (error1) throw error1;
+						});
+					});
+				}).catch(seriesError => {
+					msg.channel.createMessage({embed: {
+						title: "Error " + seriesError.response.status,
+						description: "Content " + seriesError.response.statusText + " for `" + args.join(" ") + "`",
+						color: 0xFF0000,
+						footer: {
+							text: "Show info and images from The TVDB",
+						}
+					}});
+				});
+			} else {
+				msg.channel.createMessage({embed: {
+					title: "Error",
+					description: "There is no result #`" + parseInt(args.join("")) + "`",
+					color: 0xFF0000,
+				}});
+			}
+		} else {
+			msg.channel.createMessage({embed: {
+				title: "Error",
+				description: "`" + args.join("") + "` is not a number",
+				color: 0xFF0000,
+			}});
+		}
+	} else {
+		msg.channel.createMessage({embed: {
+			title: "Error",
+			description: "There has been no recent search. Please search again. Ex: `showWatch game of thrones`",
+			color: 0xFF0000,
+		}});
+	}
+}, {
+	argsRequired: true,
+	errorMessage: "Please make sure you typed in a result number from the search results. Ex: `showWatch select 1`",
+	description: "Choose result from search.",
+	fullDescription: "Select a result from the search result list.",
+	usage: "`<number or result>`",
+	permissionMessage: "You must have the `Manage Channels` permission or higher to use this command",
+	requirements: {
+		permissions: {
+			"manageChannels": true
+		}
+	}
+});
+showWatch.registerSubcommandAlias("s", "select");
+showWatch.registerSubcommandAlias("pick", "select");
+showWatch.registerSubcommandAlias("p", "select");
 
 // Message watchlist
 bot.on("messageReactionAdd", (message, emoji, userID) => {
