@@ -3,6 +3,7 @@ const mysql = require("mysql");
 const TVDBPlugin = require('node-tvdb');
 const secretKeys = require("./secret-keys.js");
 const tvdb = new TVDBPlugin(secretKeys.tvdbKey);
+const tvdbImageBase = "https://thetvdb.com/banners/";
 
 const pool  = mysql.createPool({
 	connectionLimit: 50,
@@ -171,6 +172,53 @@ bot.registerCommand("roleSignup", (msg, args) => {
 	}
 });
 bot.registerCommandAlias("rs", "roleSignup");
+
+var showSearch = {};
+bot.registerCommand("showWatch", (msg, args) => {
+	tvdb.getSeriesByName(args.join(" ")).then(showSearchResponse => {
+		console.log(showSearchResponse);
+		if (showSearchResponse.length > 1) {
+			// Multiple shows in search results
+		} else {
+			// Only 1
+			tvdb.getSeriesImages(showSearchResponse[0].id, "poster").then(posterResponse => {
+				const posterList = posterResponse.sort(function(a, b) {
+					return (b.ratingsInfo.average - a.ratingsInfo.average);
+				});
+				msg.channel.createMessage({embed: {
+					title: "Now watching " + showSearchResponse[0].seriesName + " on " + showSearchResponse[0].network,
+					description: showSearchResponse[0].overview,
+					color: 0x00FF00,
+					footer: {
+						text: "Show info and images from The TVDB",
+					},
+					thumbnail: {
+						url: tvdbImageBase + posterList[0].fileName,
+					}
+				}});
+			}).catch(posterError => {
+				msg.channel.createMessage({embed: {
+					title: "Now watching " + showSearchResponse[0].seriesName + " on " + showSearchResponse[0].network,
+					description: showSearchResponse[0].overview,
+					color: 0x00FF00,
+					footer: {
+						text: "Show info and images from The TVDB",
+					}
+				}});
+			});
+		}
+	}).catch(showSearchError => {
+		msg.channel.createMessage({embed: {
+			title: "Error " + showSearchError.response.status,
+			description: "Content " + showSearchError.response.statusText + " for `" + args.join(" ") + "`",
+			color: 0xFF0000,
+			footer: {
+				text: "Show info and images from The TVDB",
+			}
+		}});
+	});
+});
+bot.registerCommandAlias("sw", "showWatch");
 
 // Message watchlist
 bot.on("messageReactionAdd", (message, emoji, userID) => {

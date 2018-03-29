@@ -20,6 +20,19 @@ CREATE TABLE `guild_preferences` (
 );
 
 -- ---
+-- Table 'guild_tvWatchlist'
+-- 
+-- ---
+
+DROP TABLE IF EXISTS `guild_tvWatchlist`;
+		
+CREATE TABLE `guild_tvWatchlist` (
+  `guild_id` VARCHAR(50) NOT NULL,
+  `tvdbShow_id` INTEGER NOT NULL,
+  UNIQUE KEY (`guild_id`, `tvdbShow_id`)
+);
+
+-- ---
 -- Table 'notifMsgWatchlist'
 -- 
 -- ---
@@ -36,12 +49,14 @@ CREATE TABLE `notifMsgWatchlist` (
 -- Foreign Keys 
 -- ---
 
+ALTER TABLE `guild_tvWatchlist` ADD FOREIGN KEY (guild_id) REFERENCES `guild_preferences` (`guild_id`) ON DELETE CASCADE;
 
 -- ---
 -- Table Properties
 -- ---
 
 -- ALTER TABLE `guild_preferences` ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+-- ALTER TABLE `guild_tvWatchlist` ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 -- ALTER TABLE `notifMsgWatchlist` ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 -- ---
@@ -50,5 +65,7 @@ CREATE TABLE `notifMsgWatchlist` (
 
 -- INSERT INTO `guild_preferences` (`guild_id`,`textChannel_id`,`notificationRole_id`) VALUES
 -- ('','','');
+-- INSERT INTO `guild_tvWatchlist` (`guild_id`,`tvdbShow_id`) VALUES
+-- ('','');
 -- INSERT INTO `notifMsgWatchlist` (`message_id`,`channel_id`) VALUES
 -- ('','');
