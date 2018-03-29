@@ -21,6 +21,7 @@
     "eris": "*",
     "erlpack": "github:abalabahaha/erlpack",
     "eventemitter3": "*",
+    "mysql": "*",
     "node-schedule": "*",
     "node-tvdb": "*",
     "uws": "*",
