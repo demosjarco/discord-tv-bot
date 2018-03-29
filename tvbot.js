@@ -43,7 +43,7 @@ bot.registerCommand("setChannel", (msg, args) => {
 	pool.getConnection(function(err1, connection1) {
 		if (err1) throw err1;
 		
-		connection1.query("INSERT INTO guild_preferences (guild_id, textChannel_id) VALUES (?, ?)", [msg.channel.guild.id, channel], function(error1, results1, fields1) {
+		connection1.query("INSERT INTO guild_preferences (guild_id, textChannel_id) VALUES (?, ?) ON DUPLICATE KEY UPDATE textChannel_id=VALUES(textChannel_id)", [msg.channel.guild.id, channel], function(error1, results1, fields1) {
 			connection1.release();
 			
 			if (error1) throw error1;
