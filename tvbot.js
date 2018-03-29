@@ -69,11 +69,46 @@ bot.registerCommand("setChannel", (msg, args) => {
 bot.registerCommandAlias("sc", "setChannel");
 
 bot.registerCommand("setRole", (msg, args) => {
-	
+	// Check if role is mentioned in command
+	if (msg.roleMentions && msg.roleMentions.length > 0) {
+		// User mentioned a role. Use that role
+		pool.getConnection(function(err1, connection1) {
+			if (err1) throw err1;
+
+			connection1.query("UPDATE guild_preferences SET notificationRole_id = ? WHERE guild_id = ?", [msg.roleMentions[0], msg.channel.guild.id], function(error1, results1, fields1) {
+				connection1.release();
+
+				if (error1) throw error1;
+
+				msg.channel.createMessage({embed: {
+					title: "Success",
+					description: "The role <@&" + msg.roleMentions[0] + "> has been set to mention. Assign this role to be notified or use the `roleSignup` command to have the bot give an option for people to sign up (bot must have `Manage Roles` and `Add Reactions` permissions).",
+					color: 0x00FF00
+				}});
+			});
+		});
+	} else {
+		// No role mentioned. Clear role if exists
+		pool.getConnection(function(err1, connection1) {
+			if (err1) throw err1;
+
+			connection1.query("UPDATE guild_preferences SET notificationRole_id = NULL WHERE guild_id = ?", [msg.channel.guild.id], function(error1, results1, fields1) {
+				connection1.release();
+
+				if (error1) throw error1;
+
+				msg.channel.createMessage({embed: {
+					title: "Success",
+					description: "The bot will not mention any role when posting.",
+					color: 0x00FF00
+				}});
+			});
+		});
+	}
 }, {
-	description: "",
-	fullDescription: "",
-	usage: "",
+	description: "Set the role for the bot to mention when posting.",
+	fullDescription: "Set the role for the bot to mention when posting. If no role is mentioned in this command, the bot will not mention anyone when posting.",
+	usage: "Mention the role using `@rolename` in this command",
 	permissionMessage: "You must have the `Manage Roles` permission or higher to use this command",
 	requirements: {
 		permissions: {
