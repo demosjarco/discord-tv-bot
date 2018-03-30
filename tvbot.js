@@ -67,16 +67,16 @@ bot.on("ready", () => {
 								// Fire date 10 minutes before
 								const fireDate = new Date(epDate.getTime() - 600000);
 								// if (fireDate.getTime() > new Date().getTime()) {
-								schedule.scheduleJob(fireDate, function(episodeId, episodeDate, channelId, notRoleId) {
+								schedule.scheduleJob(fireDate, function(seriesName, episodeId, channelId, notRoleId) {
 									// Post episode is live
 									tvdb.getEpisodeById(episodeId).then(episodeInfo => {
 										var notRole = "";
 										if (notRoleId) notRole = "<@&" + notRoleId + ">";
 										bot.createMessage(channelId, {
-											content: notRole,
+											content: notRole + " " + seriesName + " starts in 10 minutes",
 											embed: {
-												title: episodeInfo.episodeName,
-												description: "Episode starts in 10 minutes.\n" + episodeInfo.overview,
+												title: seriesName + " " + episodeInfo.airedSeason + "x" + episodeInfo.airedEpisodeNumber + " - " + episodeInfo.episodeName,
+												description: episodeInfo.overview,
 												footer: {
 													text: "Show info and images from The TVDB",
 												}
@@ -85,7 +85,7 @@ bot.on("ready", () => {
 									}).catch(episodeError => {
 										console.error(episodeError);
 									});
-								}.bind(null, episode.id, epDate, row.textChannel_id, row.notificationRole_id));
+								}.bind(null, seriesInfo.seriesName, episode.id, row.textChannel_id, row.notificationRole_id));
 							}
 
 							episodeCounter++;
