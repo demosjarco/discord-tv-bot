@@ -46,19 +46,9 @@ bot.on("ready", () => {
 				tvdb.getSeriesById(row.tvdbShow_id).then(seriesInfo => {
 					// Annoying time zone stuff
 					var hours = parseInt(seriesInfo.airsTime.split(":")[0]);
-					// Suptract 10 minutes to give 10 minutes headsup
-					const alertMinutes = parseInt(seriesInfo.airsTime.split(":")[1].split(" ")[0]) - 10;
 					const minutes = parseInt(seriesInfo.airsTime.split(":")[1].split(" ")[0]);
 					// IF PM add 12 hours in milliseconds
 					if (seriesInfo.airsTime.split(":")[1].split(" ")[1] === "PM") hours += 12;
-					
-					var alertTimeString = "T";//"T01:29-0400";
-					if (hours < 10) alertTimeString += "0";
-					alertTimeString += hours;
-					alertTimeString += ":";
-					if (alertMinutes < 10) alertTimeString += "0";
-					alertTimeString += alertMinutes;
-					alertTimeString += "-0" + (Math.abs(secondsToGMT) / 60 / 60) + "00";
 					
 					var timeString = "T";//"T01:29-0400";
 					if (hours < 10) timeString += "0";
@@ -74,8 +64,10 @@ bot.on("ready", () => {
 						function episodeLoop(episode) {
 							if (!isNaN(episode.absoluteNumber)) {
 								// Is actual episode not extras
-								const fireDate = new Date(episode.firstAired + alertTimeString);
 								const epDate = new Date(episode.firstAired + timeString);
+								// Fire date 10 minutes before
+								const fireDate = new Date(epDate.getTime() - 600000);
+								// if (fireDate.getTime() > new Date().getTime()) {
 								schedule.scheduleJob(fireDate, function(episodeId, episodeDate, channelId, notRoleId) {
 									// Post episode is live
 									tvdb.getEpisodeById(episodeId).then(episodeInfo => {
@@ -84,7 +76,6 @@ bot.on("ready", () => {
 										bot.createMessage(channelId, {embed: {
 											title: episodeInfo.episodeName,
 											description: notRole + "Episode starts in 10 minutes.\n" + episodeInfo.overview,
-											color: 0x0000FF,
 											footer: {
 												text: "Show info and images from The TVDB",
 											},
