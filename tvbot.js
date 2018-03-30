@@ -41,7 +41,6 @@ bot.on("ready", () => {
 			connection1.query("SELECT gp.textChannel_id, gp.notificationRole_id, gwl.guild_id, gwl.tvdbShow_id FROM guild_tvWatchlist gwl JOIN guild_preferences gp ON (gwl.guild_id = gp.guild_id)").on("error", function(error1) {
 				throw error1;
 			}).on("result", function(row) {
-				// row.tvdbShow_id
 				connection1.pause();
 				tvdb.getSeriesById(row.tvdbShow_id).then(seriesInfo => {
 					// Annoying time zone stuff
@@ -72,14 +71,17 @@ bot.on("ready", () => {
 									// Post episode is live
 									tvdb.getEpisodeById(episodeId).then(episodeInfo => {
 										var notRole = "";
-										if (notRoleId) notRole = "<@&" + notRoleId + "> ";
-										bot.createMessage(channelId, {embed: {
-											title: episodeInfo.episodeName,
-											description: notRole + "Episode starts in 10 minutes.\n" + episodeInfo.overview,
-											footer: {
-												text: "Show info and images from The TVDB",
-											},
-										}});
+										if (notRoleId) notRole = "<@&" + notRoleId + ">";
+										bot.createMessage(channelId, {
+											content: notRole,
+											embed: {
+												title: episodeInfo.episodeName,
+												description: "Episode starts in 10 minutes.\n" + episodeInfo.overview,
+												footer: {
+													text: "Show info and images from The TVDB",
+												}
+											}
+										});
 									}).catch(episodeError => {
 										console.error(episodeError);
 									});
