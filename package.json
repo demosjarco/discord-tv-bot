@@ -24,7 +24,7 @@
     "mysql": "*",
     "node-schedule": "*",
     "node-tvdb": "*",
-    "request": "^2.85.0",
+    "request": "*",
     "uws": "*",
     "zlib-sync": "*"
   }
