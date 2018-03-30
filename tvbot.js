@@ -6,6 +6,8 @@ const schedule = require("node-schedule");
 const TVDBPlugin = require("node-tvdb");
 const tvdb = new TVDBPlugin(secretKeys.tvdbKey);
 const tvdbImageBase = "https://thetvdb.com/banners/";
+const colorThief = require('color-thief-jimp');
+const jimp = require('jimp');
 
 const pool  = mysql.createPool({
 	connectionLimit: 50,
@@ -64,28 +66,31 @@ bot.on("ready", () => {
 							if (!isNaN(episode.absoluteNumber)) {
 								// Is actual episode not extras
 								const epDate = new Date(episode.firstAired + timeString);
-								// Fire date 10 minutes before
-								const fireDate = new Date(epDate.getTime() - 600000);
-								// if (fireDate.getTime() > new Date().getTime()) {
-								schedule.scheduleJob(fireDate, function(seriesName, episodeId, channelId, notRoleId) {
-									// Post episode is live
-									tvdb.getEpisodeById(episodeId).then(episodeInfo => {
-										var notRole = "";
-										if (notRoleId) notRole = "<@&" + notRoleId + ">";
-										bot.createMessage(channelId, {
-											content: notRole + " " + seriesName + " starts in 10 minutes",
-											embed: {
-												title: seriesName + " " + episodeInfo.airedSeason + "x" + episodeInfo.airedEpisodeNumber + " - " + episodeInfo.episodeName,
-												description: episodeInfo.overview,
-												footer: {
-													text: "Show info and images from The TVDB",
+								
+								if (epDate) {
+									// Fire date 10 minutes before
+									const fireDate = new Date(epDate.getTime() - 600000);
+									// if (fireDate.getTime() > new Date().getTime()) {
+									schedule.scheduleJob(fireDate, function(seriesName, episodeId, channelId, notRoleId) {
+										// Post episode is live
+										tvdb.getEpisodeById(episodeId).then(episodeInfo => {
+											var notRole = "";
+											if (notRoleId) notRole = "<@&" + notRoleId + ">";
+											/*bot.createMessage(channelId, {
+												content: notRole + " " + seriesName + " starts in 10 minutes",
+												embed: {
+													title: seriesName + " " + episodeInfo.airedSeason + "x" + episodeInfo.airedEpisodeNumber + " - " + episodeInfo.episodeName,
+													description: episodeInfo.overview,
+													footer: {
+														text: "Show info and images from The TVDB",
+													}
 												}
-											}
+											});*/
+										}).catch(episodeError => {
+											console.error(episodeError);
 										});
-									}).catch(episodeError => {
-										console.error(episodeError);
-									});
-								}.bind(null, seriesInfo.seriesName, episode.id, row.textChannel_id, row.notificationRole_id));
+									}.bind(null, seriesInfo.seriesName, episode.id, row.textChannel_id, row.notificationRole_id));
+								}
 							}
 
 							episodeCounter++;
@@ -284,17 +289,24 @@ const showWatch = bot.registerCommand("showWatch", (msg, args) => {
 				const posterList = posterResponse.sort(function(a, b) {
 					return (b.ratingsInfo.average - a.ratingsInfo.average);
 				});
-				msg.channel.createMessage({embed: {
-					title: "Now watching " + showSearchResponse[0].seriesName + " on " + showSearchResponse[0].network,
-					description: showSearchResponse[0].overview,
-					color: 0x00FF00,
-					footer: {
-						text: "Show info and images from The TVDB",
-					},
-					thumbnail: {
-						url: tvdbImageBase + posterList[0].fileName,
-					}
-				}});
+				jimp.read(tvdbImageBase + posterList[0].fileName, (err, sourceImage) => {
+					if (err) console.error(err);
+					// getColor(sourceImage[, quality])
+					var dominantColor = colorThief.getColor(sourceImage, 1);
+					// dominantColor = [intRed, intGreen, intBlue]
+					
+					msg.channel.createMessage({embed: {
+						title: "Now watching " + showSearchResponse[0].seriesName + " on " + showSearchResponse[0].network,
+						description: showSearchResponse[0].overview,
+						color: parseInt(rgbToHex(dominantColor[0], dominantColor[1], dominantColor[2]), 16),
+						footer: {
+							text: "Show info and images from The TVDB",
+						},
+						thumbnail: {
+							url: tvdbImageBase + posterList[0].fileName,
+						}
+					}});
+				});
 			}).catch(posterError => {
 				msg.channel.createMessage({embed: {
 					title: "Now watching " + showSearchResponse[0].seriesName + " on " + showSearchResponse[0].network,
@@ -351,17 +363,24 @@ showWatch.registerSubcommand("select", (msg, args) => {
 						const posterList = posterResponse.sort(function(a, b) {
 							return (b.ratingsInfo.average - a.ratingsInfo.average);
 						});
-						msg.channel.createMessage({embed: {
-							title: "Now watching " + seriesInfo.seriesName + " on " + seriesInfo.network,
-							description: seriesInfo.overview,
-							color: 0x00FF00,
-							footer: {
-								text: "Show info and images from The TVDB",
-							},
-							thumbnail: {
-								url: tvdbImageBase + posterList[0].fileName,
-							}
-						}});
+						jimp.read(tvdbImageBase + posterList[0].fileName, (err, sourceImage) => {
+							if (err) console.error(err);
+							// getColor(sourceImage[, quality])
+							var dominantColor = colorThief.getColor(sourceImage, 1);
+							// dominantColor = [intRed, intGreen, intBlue]
+
+							msg.channel.createMessage({embed: {
+								title: "Now watching " + seriesInfo.seriesName + " on " + seriesInfo.network,
+								description: seriesInfo.overview,
+								color: parseInt(rgbToHex(dominantColor[0], dominantColor[1], dominantColor[2]), 16),
+								footer: {
+									text: "Show info and images from The TVDB",
+								},
+								thumbnail: {
+									url: tvdbImageBase + posterList[0].fileName,
+								}
+							}});
+						});
 					}).catch(posterError => {
 						msg.channel.createMessage({embed: {
 							title: "Now watching " + seriesInfo.seriesName + " on " + seriesInfo.network,
@@ -558,3 +577,7 @@ bot.on("messageDeleteBulk", (messages) => {
 	// First time
 	messageStepper(messages[messageCounter]);
 });
+
+function rgbToHex(r, g, b) {
+	return ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+}

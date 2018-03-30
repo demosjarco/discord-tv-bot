@@ -18,6 +18,7 @@
   "homepage": "https://github.com/victhebeast/discord-tv-bot#readme",
   "dependencies": {
     "bufferutil": "*",
+    "color-thief-jimp": "*",
     "eris": "*",
     "erlpack": "github:abalabahaha/erlpack",
     "eventemitter3": "*",
