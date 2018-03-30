@@ -296,7 +296,7 @@ const showWatch = bot.registerCommand("showWatch", (msg, args) => {
 					// dominantColor = [intRed, intGreen, intBlue]
 					
 					msg.channel.createMessage({embed: {
-						title: "Now watching " + showSearchResponse[0].seriesName + " on " + showSearchResponse[0].network,
+						title: "Now watching for" + showSearchResponse[0].seriesName + " on " + showSearchResponse[0].network,
 						description: showSearchResponse[0].overview,
 						color: parseInt(rgbToHex(dominantColor[0], dominantColor[1], dominantColor[2]), 16),
 						footer: {
@@ -309,7 +309,7 @@ const showWatch = bot.registerCommand("showWatch", (msg, args) => {
 				});
 			}).catch(posterError => {
 				msg.channel.createMessage({embed: {
-					title: "Now watching " + showSearchResponse[0].seriesName + " on " + showSearchResponse[0].network,
+					title: "Now watching for" + showSearchResponse[0].seriesName + " on " + showSearchResponse[0].network,
 					description: showSearchResponse[0].overview,
 					color: 0x00FF00,
 					footer: {
@@ -370,7 +370,7 @@ showWatch.registerSubcommand("select", (msg, args) => {
 							// dominantColor = [intRed, intGreen, intBlue]
 
 							msg.channel.createMessage({embed: {
-								title: "Now watching " + seriesInfo.seriesName + " on " + seriesInfo.network,
+								title: "Now watching for" + seriesInfo.seriesName + " on " + seriesInfo.network,
 								description: seriesInfo.overview,
 								color: parseInt(rgbToHex(dominantColor[0], dominantColor[1], dominantColor[2]), 16),
 								footer: {
@@ -383,7 +383,7 @@ showWatch.registerSubcommand("select", (msg, args) => {
 						});
 					}).catch(posterError => {
 						msg.channel.createMessage({embed: {
-							title: "Now watching " + seriesInfo.seriesName + " on " + seriesInfo.network,
+							title: "Now watching for" + seriesInfo.seriesName + " on " + seriesInfo.network,
 							description: seriesInfo.overview,
 							color: 0x00FF00,
 							footer: {
