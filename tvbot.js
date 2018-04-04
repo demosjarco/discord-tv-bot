@@ -70,26 +70,27 @@ bot.on("ready", () => {
 								if (epDate) {
 									// Fire date 10 minutes before
 									const fireDate = new Date(epDate.getTime() - 600000);
-									// if (fireDate.getTime() > new Date().getTime()) {
-									schedule.scheduleJob(fireDate, function(seriesName, episodeId, channelId, notRoleId) {
-										// Post episode is live
-										tvdb.getEpisodeById(episodeId).then(episodeInfo => {
-											var notRole = "";
-											if (notRoleId) notRole = "<@&" + notRoleId + ">";
-											/*bot.createMessage(channelId, {
-												content: notRole + " " + seriesName + " starts in 10 minutes",
-												embed: {
-													title: seriesName + " " + episodeInfo.airedSeason + "x" + episodeInfo.airedEpisodeNumber + " - " + episodeInfo.episodeName,
-													description: episodeInfo.overview,
-													footer: {
-														text: "Show info and images from The TVDB",
+									if (fireDate && fireDate.getTime() > new Date().getTime()) {
+										schedule.scheduleJob(fireDate, function(seriesName, episodeId, channelId, notRoleId) {
+											// Post episode is live
+											tvdb.getEpisodeById(episodeId).then(episodeInfo => {
+												var notRole = "";
+												if (notRoleId) notRole = "<@&" + notRoleId + ">";
+												bot.createMessage(channelId, {
+													content: notRole + " " + seriesName + " starts in 10 minutes",
+													embed: {
+														title: seriesName + " " + episodeInfo.airedSeason + "x" + episodeInfo.airedEpisodeNumber + " - " + episodeInfo.episodeName,
+														description: episodeInfo.overview,
+														footer: {
+															text: "Show info and images from The TVDB",
+														}
 													}
-												}
-											});*/
-										}).catch(episodeError => {
-											console.error(episodeError);
-										});
-									}.bind(null, seriesInfo.seriesName, episode.id, row.textChannel_id, row.notificationRole_id));
+												});
+											}).catch(episodeError => {
+												console.error(episodeError);
+											});
+										}.bind(null, seriesInfo.seriesName, episode.id, row.textChannel_id, row.notificationRole_id));
+									}
 								}
 							}
 
