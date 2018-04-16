@@ -2,7 +2,6 @@ const secretKeys = require("./secret-keys.js");
 const request = require("request");
 const Eris = require("eris");
 const mysql = require("mysql");
-const schedule = require("node-schedule");
 const TVDBPlugin = require("node-tvdb");
 const tvdb = new TVDBPlugin(secretKeys.tvdbKey);
 const tvdbImageBase = "https://thetvdb.com/banners/";
@@ -30,89 +29,99 @@ const bot = new Eris.CommandClient(secretKeys.botToken, {
 bot.on("ready", () => {
 	console.log("TV Bot Ready!");
 	
-	// TV DB give times in their server location which is New York
-	request({ method: "GET", url: 'http://api.timezonedb.com/v2/get-time-zone', qs: { key: secretKeys.tzdbKey, format: 'json', fields: "gmtOffset", by: 'zone', zone: 'America/New_York' } }, function (error, response, body) {
-		if (error) throw error;
-		
-		const secondsToGMT = JSON.parse(body).gmtOffset;
-		
-		// Create cron jobs on bot start
-		pool.getConnection(function(err1, connection1) {
-			if (err1) throw err1;
+	function setNotificationTimers() {
+		// TV DB give times in their server location which is New York
+		request({ method: "GET", url: 'http://api.timezonedb.com/v2/get-time-zone', qs: { key: secretKeys.tzdbKey, format: 'json', fields: "gmtOffset", by: 'zone', zone: 'America/New_York' } }, function (error, response, body) {
+			if (error) throw error;
 
-			connection1.query("SELECT gp.textChannel_id, gp.notificationRole_id, gwl.guild_id, gwl.tvdbShow_id FROM guild_tvWatchlist gwl JOIN guild_preferences gp ON (gwl.guild_id = gp.guild_id)").on("error", function(error1) {
-				throw error1;
-			}).on("result", function(row) {
-				connection1.pause();
-				tvdb.getSeriesById(row.tvdbShow_id).then(seriesInfo => {
-					// Annoying time zone stuff
-					var hours = parseInt(seriesInfo.airsTime.split(":")[0]);
-					const minutes = parseInt(seriesInfo.airsTime.split(":")[1].split(" ")[0]);
-					// IF PM add 12 hours in milliseconds
-					if (seriesInfo.airsTime.split(":")[1].split(" ")[1] === "PM") hours += 12;
-					
-					var timeString = "T";//"T01:29-0400";
-					if (hours < 10) timeString += "0";
-					timeString += hours;
-					timeString += ":";
-					if (minutes < 10) timeString += "0";
-					timeString += minutes;
-					timeString += "-0" + (Math.abs(secondsToGMT) / 60 / 60) + "00";
-					
-					tvdb.getEpisodesBySeriesId(row.tvdbShow_id).then(episodesInfo => {
-						// Manual for loop
-						var episodeCounter = 0;
-						function episodeLoop(episode) {
-							if (!isNaN(episode.absoluteNumber)) {
-								// Is actual episode not extras
-								const epDate = new Date(episode.firstAired + timeString);
-								
-								if (epDate) {
-									// Fire date 10 minutes before
-									const fireDate = new Date(epDate.getTime() - 600000);
-									if (fireDate && fireDate.getTime() > new Date().getTime()) {
-										schedule.scheduleJob(fireDate, function(seriesName, episodeId, channelId, notRoleId) {
-											// Post episode is live
-											tvdb.getEpisodeById(episodeId).then(episodeInfo => {
-												var notRole = "";
-												if (notRoleId) notRole = "<@&" + notRoleId + ">";
-												bot.createMessage(channelId, {
-													content: notRole + " " + seriesName + " starts in 10 minutes",
-													embed: {
-														title: seriesName + " " + episodeInfo.airedSeason + "x" + episodeInfo.airedEpisodeNumber + " - " + episodeInfo.episodeName,
-														description: episodeInfo.overview,
-														footer: {
-															text: "Show info and images from The TVDB",
-														}
-													}
-												});
-											}).catch(episodeError => {
-												console.error(episodeError);
-											});
-										}.bind(null, seriesInfo.seriesName, episode.id, row.textChannel_id, row.notificationRole_id));
+			const secondsToGMT = JSON.parse(body).gmtOffset;
+
+			// Create cron jobs on bot start
+			pool.getConnection(function(err1, connection1) {
+				if (err1) throw err1;
+
+				connection1.query("SELECT gp.textChannel_id, gp.notificationRole_id, gwl.guild_id, gwl.tvdbShow_id FROM guild_tvWatchlist gwl JOIN guild_preferences gp ON (gwl.guild_id = gp.guild_id)").on("error", function(error1) {
+					throw error1;
+				}).on("result", function(row) {
+					connection1.pause();
+					tvdb.getSeriesById(row.tvdbShow_id).then(seriesInfo => {
+						// Annoying time zone stuff
+						var hours = parseInt(seriesInfo.airsTime.split(":")[0]);
+						const minutes = parseInt(seriesInfo.airsTime.split(":")[1].split(" ")[0]);
+						// IF PM add 12 hours in milliseconds
+						if (seriesInfo.airsTime.split(":")[1].split(" ")[1] === "PM") hours += 12;
+
+						var timeString = "T";//"T01:29-0400";
+						if (hours < 10) timeString += "0";
+						timeString += hours;
+						timeString += ":";
+						if (minutes < 10) timeString += "0";
+						timeString += minutes;
+						timeString += "-0" + (Math.abs(secondsToGMT) / 60 / 60) + "00";
+
+						var episodePageNumber = 1;
+						function episodePagination(pageNum) {
+							tvdb.getEpisodesBySeriesId(row.tvdbShow_id).then(episodesInfo => {
+								// Manual for loop
+								var episodeCounter = 0;
+								function episodeLoop(episode) {
+									if (!isNaN(episode.absoluteNumber)) {
+										// Is actual episode not extras
+										const epDate = new Date(episode.firstAired + timeString);
+
+										if (epDate) {
+											// Fire date 10 minutes before
+											const fireDate = new Date(epDate.getTime() - 600000);
+											if (fireDate && fireDate.getTime() > new Date().getTime() && fireDate.getTime() - new Date().getTime() < 2147483647) {
+												setTimeout(function(seriesName, seriesNetwork, episodeId, channelId, notRoleId) {
+													// Post episode is live
+													tvdb.getEpisodeById(episodeId).then(episodeInfo => {
+														var notRole = "";
+														if (notRoleId) notRole = "<@&" + notRoleId + ">";
+														bot.createMessage(channelId, {
+															content: notRole + " " + seriesName + " starts on " + seriesNetwork + " in 10 minutes",
+															embed: {
+																title: seriesName + " " + episodeInfo.airedSeason + "x" + episodeInfo.airedEpisodeNumber + " - " + episodeInfo.episodeName,
+																description: episodeInfo.overview,
+																footer: {
+																	text: "Show info and images from The TVDB",
+																}
+															}
+														});
+													}).catch(episodeError => {
+														console.error(episodeError);
+													});
+												}.bind(null, seriesInfo.seriesName, seriesInfo.network, episode.id, row.textChannel_id, row.notificationRole_id), fireDate.getTime() - new Date().getTime());
+											}
+										}
+									}
+
+									episodeCounter++;
+									if (episodeCounter < episodesInfo.length) {
+										episodeLoop(episodesInfo[episodeCounter]);
+									} else {
+										connection1.resume();
 									}
 								}
-							}
-
-							episodeCounter++;
-							if (episodeCounter < episodesInfo.length) {
 								episodeLoop(episodesInfo[episodeCounter]);
-							} else {
+							}).catch(episodesError => {
+								console.error(episodesError);
 								connection1.resume();
-							}
+							});
 						}
-						episodeLoop(episodesInfo[episodeCounter]);
-					}).catch(episodesError => {
-						console.error(episodesError);
+						episodePagination(episodePageNumber);
+					}).catch(seriesError => {
+						console.error(seriesError);
+						connection1.resume();
 					});
-				}).catch(seriesError => {
-					console.error(seriesError);
+				}).on("end", function() {
+					connection1.release();
 				});
-			}).on("end", function() {
-				connection1.release();
 			});
 		});
-	});
+	}
+	setNotificationTimers();
+	setInterval(setNotificationTimers, 2147483647);
 });
 bot.on("error", (err, id) => {
 	console.error(err);
