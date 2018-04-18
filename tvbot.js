@@ -326,7 +326,7 @@ const showWatch = bot.registerCommand("showWatch", (msg, args) => {
 			var fieldsTemp = [];
 			var series = [];
 			showSearchResponse.splice(0, 25).forEach(function(showResult, searchIndex) {
-				fieldsTemp.push({name: (searchIndex+1) + ": " + showResult.seriesName + " on " + showResult.network, value: showResult.overview, inline: true,});
+				fieldsTemp.push({name: (searchIndex+1) + ": " + showResult.seriesName + " on " + showResult.network, value: showResult.overview.substring(0, 255), inline: true,});
 				series.push(showResult.id);
 			});
 			
