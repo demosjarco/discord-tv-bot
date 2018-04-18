@@ -168,6 +168,54 @@ bot.registerCommand("setChannel", (msg, args) => {
 });
 bot.registerCommandAlias("sc", "setChannel");
 
+// https://abal.moe/Eris/docs/CommandClient#function-createChannel
+// Channel type 4 = catergory channel
+
+bot.registerCommand("setPreChannel", (msg, args) => {
+	
+}, {
+	description: "",
+	fullDescription: "",
+	usage: "Just type this command in the channel that you want to use or tag a channel using `#channel-name-whatever`",
+	permissionMessage: "You must have the `Manage Channels` permission or higher to use this command",
+	requirements: {
+		permissions: {
+			"manageChannels": true
+		}
+	}
+});
+bot.registerCommandAlias("sPrc", "setPreChannel");
+
+bot.registerCommand("setLiveChannel", (msg, args) => {
+	
+}, {
+	description: "",
+	fullDescription: "",
+	usage: "Just type this command in the channel that you want to use or tag a channel using `#channel-name-whatever`",
+	permissionMessage: "You must have the `Manage Channels` permission or higher to use this command",
+	requirements: {
+		permissions: {
+			"manageChannels": true
+		}
+	}
+});
+bot.registerCommandAlias("sLic", "setLiveChannel");
+
+bot.registerCommand("setPostChannel", (msg, args) => {
+	
+}, {
+	description: "",
+	fullDescription: "",
+	usage: "Just type this command in the channel that you want to use or tag a channel using `#channel-name-whatever`",
+	permissionMessage: "You must have the `Manage Channels` permission or higher to use this command",
+	requirements: {
+		permissions: {
+			"manageChannels": true
+		}
+	}
+});
+bot.registerCommandAlias("sPoc", "setPostChannel");
+
 bot.registerCommand("setRole", (msg, args) => {
 	// Check if role is mentioned in command
 	if (msg.roleMentions && msg.roleMentions.length > 0) {
@@ -339,6 +387,7 @@ const showWatch = bot.registerCommand("showWatch", (msg, args) => {
 			});
 		}
 	}).catch(showSearchError => {
+		console.error(showSearchError);
 		msg.channel.createMessage({embed: {
 			title: "Error " + showSearchError.response.status,
 			description: "Content " + showSearchError.response.statusText + " for `" + args.join(" ") + "`",
