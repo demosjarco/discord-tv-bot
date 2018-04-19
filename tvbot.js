@@ -34,6 +34,30 @@ const bot = new Eris.CommandClient(secretKeys.botToken, {
 bot.on("ready", () => {
 	console.log("TV Bot Ready!");
 	
+	pool.getConnection(function(err1, connection1) {
+		if (err1) throw err1;
+		
+		connection1.query("SELECT DISTINCT guild_id FROM guild_tvWatchlist", function(error1, results1, fields1) {
+			connection1.release();
+			
+			if (error1) throw error1;
+			
+			pool.getConnection(function(err2, connection2) {
+				if (err2) throw err2;
+
+				connection2.query("SELECT DISTINCT tvdbShow_id FROM guild_tvWatchlist", function(error2, results2, fields2) {
+					connection2.release();
+
+					if (error2) throw error2;
+					
+					bot.editStatus("online", {
+						name: results2.length + " shows on " + results1.length + " servers"
+					});
+				});
+			});
+		});
+	});
+	
 	function setNotificationTimers() {
 		// TV DB give times in their server location which is New York
 		request({ method: "GET", url: 'http://api.timezonedb.com/v2/get-time-zone', qs: { key: secretKeys.tzdbKey, format: 'json', fields: "gmtOffset", by: 'zone', zone: 'America/New_York' } }, function (error, response, body) {
