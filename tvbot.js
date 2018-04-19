@@ -3,10 +3,15 @@ const request = require("request");
 const Eris = require("eris");
 const mysql = require("mysql");
 const TVDBPlugin = require("node-tvdb");
-const tvdb = new TVDBPlugin(secretKeys.tvdbKey);
 const tvdbImageBase = "https://thetvdb.com/banners/";
 const colorThief = require('color-thief-jimp');
 const jimp = require('jimp');
+
+var tvdb = new TVDBPlugin(secretKeys.tvdbKey);
+setInterval(function() {
+	// Refresh token every 24 hours
+	tvdb = new TVDBPlugin(secretKeys.tvdbKey);
+}, 86400000);
 
 const pool  = mysql.createPool({
 	connectionLimit: 50,
