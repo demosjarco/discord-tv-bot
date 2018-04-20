@@ -74,19 +74,22 @@ bot.on("ready", () => {
 				}).on("result", function(row) {
 					connection1.pause();
 					tvdb.getSeriesById(row.tvdbShow_id).then(seriesInfo => {
-						// Annoying time zone stuff
-						var hours = parseInt(seriesInfo.airsTime.split(":")[0]);
-						const minutes = parseInt(seriesInfo.airsTime.split(":")[1].split(" ")[0]);
-						// IF PM add 12 hours in milliseconds
-						if (seriesInfo.airsTime.split(":")[1].split(" ")[1] === "PM") hours += 12;
+						var timeString = "";
+						if (seriesInfo.airsTime) {
+							// Annoying time zone stuff
+							var hours = parseInt(seriesInfo.airsTime.split(":")[0]);
+							const minutes = parseInt(seriesInfo.airsTime.split(":")[1].split(" ")[0]);
+							// IF PM add 12 hours in milliseconds
+							if (seriesInfo.airsTime.split(":")[1].split(" ")[1] === "PM") hours += 12;
 
-						var timeString = "T";//"T01:29-0400";
-						if (hours < 10) timeString += "0";
-						timeString += hours;
-						timeString += ":";
-						if (minutes < 10) timeString += "0";
-						timeString += minutes;
-						timeString += "-0" + (Math.abs(secondsToGMT) / 60 / 60) + "00";
+							timeString = "T";//"T01:29-0400";
+							if (hours < 10) timeString += "0";
+							timeString += hours;
+							timeString += ":";
+							if (minutes < 10) timeString += "0";
+							timeString += minutes;
+							timeString += "-0" + (Math.abs(secondsToGMT) / 60 / 60) + "00";
+						}
 
 						var episodePageNumber = 1;
 						function episodePagination(pageNum) {
