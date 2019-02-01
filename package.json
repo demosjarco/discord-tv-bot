@@ -1,31 +1,35 @@
 {
-  "name": "discord-tv-bot",
-  "version": "1.0.0",
-  "description": "",
-  "main": "tvbot.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/victhebeast/discord-tv-bot.git"
-  },
-  "author": "Victor",
-  "license": "GPL-3.0",
-  "bugs": {
-    "url": "https://github.com/victhebeast/discord-tv-bot/issues"
-  },
-  "homepage": "https://github.com/victhebeast/discord-tv-bot#readme",
-  "dependencies": {
-    "bufferutil": "*",
-    "color-thief-jimp": "*",
-    "eris": "*",
-    "erlpack": "github:abalabahaha/erlpack",
-    "eventemitter3": "*",
-    "mysql": "*",
-    "node-tvdb": "*",
-    "request": "*",
-    "uws": "*",
-    "zlib-sync": "*"
-  }
+	"name": "discord-tv-bot",
+	"version": "1.0.0",
+	"description": "",
+	"main": "tvbot.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/victhebeast/discord-tv-bot.git"
+	},
+	"author": "",
+	"license": "GPL-3.0",
+	"bugs": {
+		"url": "https://github.com/victhebeast/discord-tv-bot/issues"
+	},
+	"homepage": "https://github.com/victhebeast/discord-tv-bot#readme",
+	"devDependencies": {
+		"nodemon": "*"
+	},
+	"dependencies": {
+		"color-thief-jimp": "*",
+		"eris": "*",
+		"mysql": "*",
+		"node-tvdb": "*",
+		"request": "*"
+	},
+	"optionalDependencies": {
+		"bufferutil": "*",
+		"erlpack": "*",
+		"eventemitter3": "*",
+		"zlib-sync": "*"
+	}
 }
