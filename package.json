@@ -17,7 +17,7 @@
 	},
 	"homepage": "https://github.com/victhebeast/discord-tv-bot#readme",
 	"devDependencies": {
-		"nodemon": "*"
+		"nodemon": "^1.18.10"
 	},
 	"dependencies": {
 		"color-thief-jimp": "*",
