@@ -62,3 +62,6 @@ secret-keys.js
 
 # dreamweaver trash
 _notes/
+
+# visual studio trash
+.vs/
