@@ -1,4 +1,4 @@
-const secretKeys = require("./secret-keys.js");
+const secretKeys = require('./secret-keys.js');
 const { CommandClient } = require("eris");
 
 const bot = new CommandClient(secretKeys.botToken, {
