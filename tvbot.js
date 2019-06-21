@@ -1,3 +1,5 @@
+const workerThreadsPool = require('worker-threads-pool');
+const wtPool = new workerThreadsPool({ max: require('os').cpus().length });
 const secretKeys = require('./secret-keys.js');
 const { CommandClient } = require("eris");
 
@@ -35,6 +37,3 @@ bot.on('ready', () => {
 	bot.editStatus('idle', null);
 });
 
-const workerThreadsPool = require('worker-threads-pool');
-
-const wtPool = new workerThreadsPool({ max: require('os').cpus().length });
