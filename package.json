@@ -4,7 +4,9 @@
 	"description": "",
 	"main": "tvbot.js",
 	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1"
+		"test": "echo \"npm test temporarily disabled\"",
+		"start": "node .",
+		"dev": "nodemon ."
 	},
 	"repository": {
 		"type": "git",
