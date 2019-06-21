@@ -38,17 +38,7 @@ bot.on('error', (err, id) => {
 	throw err;
 });
 
-const mysql = require("mysql").createPool({
-	connectionLimit: 50,
-	host: secretKeys.dbHost,
-	user: secretKeys.dbUser,
-	password: secretKeys.dbPass,
-	database: secretKeys.dbDb,
-	supportBigNumbers: false,
-});
-
 bot.on('ready', () => {
 	console.info("TV Bot Ready!");
 	bot.editStatus('idle', null);
 });
-
