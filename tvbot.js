@@ -1,7 +1,11 @@
+"use strict";
+
+require('dotenv').config();
+const { SHARE_ENV } = require('worker_threads');
 const workerThreadsPool = require('worker-threads-pool');
 const wtPool = new workerThreadsPool({ max: require('os').cpus().length });
 
-wtPool.acquire('./notificationTimer.js', function (err, worker) {
+wtPool.acquire('./notificationTimer.js', { env: SHARE_ENV }, function (err, worker) {
 	if (err) throw err;
 	worker.on('message', function (value) {
 		console.log(value);
@@ -15,10 +19,9 @@ wtPool.acquire('./notificationTimer.js', function (err, worker) {
 	});
 });
 
-const secretKeys = require('./secret-keys.js');
 const { CommandClient } = require("eris");
 
-const bot = new CommandClient(secretKeys.botToken, {
+const bot = new CommandClient(process.env.DISCORD_BOTTOKEN, {
 	compress: true
 }, {
 	defaultCommandOptions: {

@@ -1,12 +1,11 @@
 let dayEpisodeTimers = [];
 
-const secretKeys = require('./secret-keys.js');
 const mysql = require("mysql").createPool({
-	connectionLimit: 50,
-	host: secretKeys.dbHost,
-	user: secretKeys.dbUser,
-	password: secretKeys.dbPass,
-	database: secretKeys.dbDb,
+	connectionLimit: process.env.MYSQL_CONNLIMIT,
+	host: process.env.MYSQL_HOST,
+	user: process.env.MYSQL_USERNAME,
+	password: process.env.MYSQL_PASSWORD,
+	database: process.env.MYSQL_DATABASE,
 	supportBigNumbers: false,
 });
 
