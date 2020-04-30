@@ -1,34 +1,38 @@
 {
-	"name": "discord-tv-bot",
-	"version": "1.0.0",
-	"description": "",
-	"main": "tvbot.js",
-	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1"
-	},
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/victhebeast/discord-tv-bot.git"
-	},
-	"author": "",
-	"license": "GPL-3.0",
-	"bugs": {
-		"url": "https://github.com/victhebeast/discord-tv-bot/issues"
-	},
-	"homepage": "https://github.com/victhebeast/discord-tv-bot#readme",
-	"devDependencies": {
-		"nodemon": "^1.19.1"
-	},
-	"dependencies": {
-		"eris": "^0.10.0",
-		"mysql": "^2.17.1",
-		"node-tvdb": "^4.1.0",
-		"request": "^2.88.0",
-		"worker-threads-pool": "^2.0.0"
-	},
-	"optionalDependencies": {
-		"bufferutil": "^4.0.1",
-		"eventemitter3": "^4.0.0",
-		"typescript": "^3.5.2"
-	}
+  "name": "discord-tv-bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "tvbot.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "snyk-protect": "snyk protect",
+    "prepare": "npm run snyk-protect"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/victhebeast/discord-tv-bot.git"
+  },
+  "author": "",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/victhebeast/discord-tv-bot/issues"
+  },
+  "homepage": "https://github.com/victhebeast/discord-tv-bot#readme",
+  "devDependencies": {
+    "nodemon": "^1.19.1"
+  },
+  "dependencies": {
+    "eris": "^0.10.0",
+    "mysql": "^2.17.1",
+    "node-tvdb": "^4.1.0",
+    "request": "^2.88.0",
+    "worker-threads-pool": "^2.0.0",
+    "snyk": "^1.316.1"
+  },
+  "optionalDependencies": {
+    "bufferutil": "^4.0.1",
+    "eventemitter3": "^4.0.0",
+    "typescript": "^3.5.2"
+  },
+  "snyk": true
 }
