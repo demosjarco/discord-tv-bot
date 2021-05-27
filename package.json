@@ -20,7 +20,7 @@
 		"nodemon": "^1.19.1"
 	},
 	"dependencies": {
-		"eris": "^0.10.0",
+		"eris": "^0.11.0",
 		"mysql": "^2.17.1",
 		"node-tvdb": "^4.1.0",
 		"request": "^2.88.0",
